@@ -35,8 +35,7 @@ fn main() {
         "npm run build",
         "cd .output/server",
         "npm i node-fetch-native",
-        "cd ..",
-        "cd ..",
+        "cd ../..",
         "pm2 restart node .output/server/index.mjs",
     ];
 
@@ -55,9 +54,9 @@ fn main() {
     // Make sure we succeeded
     assert!(sess.authenticated());
 
-    let mut channel = sess.channel_session().unwrap();
-
     for cmd in cmds {
+        let mut channel = sess.channel_session().unwrap();
+
         channel.exec(cmd).unwrap();
 
         let mut s = String::new();
@@ -65,9 +64,10 @@ fn main() {
         channel.read_to_string(&mut s).unwrap();
     
         println!("{}", s);
+
+        channel.wait_close().unwrap();
+
+        println!("{}", channel.exit_status().unwrap());
     }
-
-    channel.wait_close().unwrap();
-
-    println!("{}", channel.exit_status().unwrap());
+    
 }
